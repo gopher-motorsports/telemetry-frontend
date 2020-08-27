@@ -1,4 +1,51 @@
 {% extends 'Telemetry/base.html' %}
 {% block content %}
-<h1>Hello {{user.first_name}}!</h1>
+<div class="container">
+	<div class="col-sm-4" align="left">
+		<h1 id="temp" align ="center"></h1>
+		<p id="temp_sensor_label" align ="center"></p>
+		<p>{{r}}</p>
+		<div class="dropdown" align ="center">
+			<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
+			<span class="caret"></span></button>
+			<ul class="dropdown-menu">
+			  <li><a href="#">HTML</a></li>
+			  <li><a href="#">CSS</a></li>
+			  <li><a href="#">JavaScript</a></li>
+			</ul>
+		  </div>
+	</div>
+	<div class="col-sm-4" align="center">
+		<h1 id="volt" align ="center"></h1>
+		<p id="volt_sensor_label" align ="center"></p>
+	</div>
+	<div class="col-sm-4" align="right">
+		<h1 id="brake_pressure" align ="center"></h1>
+		<p id="pressure_sensor_label" align ="center"></p>
+	</div>
+</div>
+
+<script>
+    function ajax(url, elem, sensor, label) {
+      		var xhttp = new XMLHttpRequest();
+      		xhttp.open("GET", url, true);
+      		xhttp.onreadystatechange = function() {
+        		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+      				var array = JSON.parse(this.responseText);
+      				document.getElementById(elem).innerHTML = array[0].value + " " + array[0].unit;
+      				document.getElementById(label).innerHTML = sensor;
+      			};
+      		}
+		xhttp.send();
+      }
+	  var sensor1 = "ecu_temp";
+	  
+
+	  function update() {
+		  ajax("http://localhost:5001/sensors/?sensor=engine_temp&number=1", 'temp', 'Engine Temperature', 'temp_sensor_label');
+		  ajax("http://localhost:5001/sensors?sensor=bat_volts&number=1", 'volt', 'Battery Voltage', 'volt_sensor_label');
+		  ajax("http://localhost:5001/sensors?sensor=brake_pressure_front&number=1", 'brake_pressure', 'Brake Preasure', 'pressure_sensor_label');
+	  }
+      setInterval(update, 100);
+</script>
 {% endblock %}
