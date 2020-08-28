@@ -26,7 +26,10 @@
 </div>
 
 <script>
-    function ajax(url, elem, sensor, label) {
+	var temp = {{ r|safe }};
+	var cities = JSON.parse(temp)
+    console.log(cities[0])
+	function ajax(url, elem, sensor, label) {
       		var xhttp = new XMLHttpRequest();
       		xhttp.open("GET", url, true);
       		xhttp.onreadystatechange = function() {
