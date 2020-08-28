@@ -4,14 +4,16 @@
 	<div class="col-sm-4" align="left">
 		<h1 id="temp" align ="center"></h1>
 		<p id="temp_sensor_label" align ="center"></p>
-		<p>{{r}}</p>
+		{% for i in r %}
+			<p>{{i}}</p>
+		{% endfor %}
 		<div class="dropdown" align ="center">
 			<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
 			<span class="caret"></span></button>
 			<ul class="dropdown-menu">
-			  <li><a href="#">HTML</a></li>
-			  <li><a href="#">CSS</a></li>
-			  <li><a href="#">JavaScript</a></li>
+				{% for i in r %}
+				<li>{{i}}</li>
+				{% endfor %}
 			</ul>
 		  </div>
 	</div>
@@ -26,6 +28,10 @@
 </div>
 
 <script>
+	var mylist = "{{r}}".split(',');
+	for(i = 0; i < mylist.length; i++){
+    console.log(mylist[i])
+};
     function ajax(url, elem, sensor, label) {
       		var xhttp = new XMLHttpRequest();
       		xhttp.open("GET", url, true);

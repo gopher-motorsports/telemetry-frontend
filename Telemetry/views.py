@@ -8,5 +8,8 @@ def home(request):
     
     r = requests.get('http://localhost:5001/init')
     print(r.text)
-    return render(request, 'Telemetry/home.html', {'r':r.text})
+    n = r.text.split(',')
+    n[0] = n[0][1:]
+    n[-1] = n[-1][:-1]
+    return render(request, 'Telemetry/home.html', {'r':n})
 
