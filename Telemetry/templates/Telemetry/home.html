@@ -8,13 +8,16 @@
 			{% for i in cols_list %}
 			<td>
 			<div>
+				<!-- Contains the sensor's data and the unit-->
 				<h1 align="center" id="{{forloop.counter0}}_value"></h1>
+				<!-- Contains the sensor's human-readable name-->
 				<p align="center" id="{{forloop.counter0}}_label"></p>
 				<!--Creates a button with each sensor's human-readable name-->
 				<div class="dropdown" align ="center">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
 					<span class="caret"></span></button>
 					<ul class="dropdown-menu">
+						<!--Adds a list item with the senor name-->
 						{% for item in sensors %}
 					<button onclick="col_sensors[{{forloop.parentloop.counter0}}] = '{{item.sensor}}'">{{item.name}}</button>
 						{% endfor %}
