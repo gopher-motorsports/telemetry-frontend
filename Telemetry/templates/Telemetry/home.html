@@ -1,30 +1,30 @@
 {% extends 'Telemetry/base.html' %}
 {% block content %}
 <div class="container">
-	<div class="col-sm-4" align="left">
-		<h1 id="temp" align ="center"></h1>
-		<p id="temp_sensor_label" align ="center"></p>
-		{% for i in r %}
-			<p>{{i}}</p>
+	<table width="100%">
+		<tr>
+			{% for i in sensors %}
+			<td>
+			<div>
+				
+				<h1 align="center">{{i.value}} {{i.unit}}</h1>
+				<p align="center">{{i.name}}</p>
+
+				<div class="dropdown" align ="center">
+					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
+					<span class="caret"></span></button>
+					<ul class="dropdown-menu">
+						{% for item in sensors %}
+						<li>{{item.name}}</li>
+						{% endfor %}
+					</ul>
+				</div>
+
+			</div>
+		</td>
 		{% endfor %}
-		<div class="dropdown" align ="center">
-			<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
-			<span class="caret"></span></button>
-			<ul class="dropdown-menu">
-				{% for i in r %}
-				<li>{{i}}</li>
-				{% endfor %}
-			</ul>
-		  </div>
-	</div>
-	<div class="col-sm-4" align="center">
-		<h1 id="volt" align ="center"></h1>
-		<p id="volt_sensor_label" align ="center"></p>
-	</div>
-	<div class="col-sm-4" align="right">
-		<h1 id="brake_pressure" align ="center"></h1>
-		<p id="pressure_sensor_label" align ="center"></p>
-	</div>
+		</tr>
+	</table>	
 </div>
 
 <script>
@@ -32,14 +32,14 @@
 	for(i = 0; i < mylist.length; i++){
     console.log(mylist[i])
 };
-    function ajax(url, elem, sensor, label) {
+    function ajax(url, elem, label) {
       		var xhttp = new XMLHttpRequest();
       		xhttp.open("GET", url, true);
       		xhttp.onreadystatechange = function() {
         		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
       				var array = JSON.parse(this.responseText);
       				document.getElementById(elem).innerHTML = array[0].value + " " + array[0].unit;
-      				document.getElementById(label).innerHTML = sensor;
+      				document.getElementById(label).innerHTML = array[0].name;
       			};
       		}
 		xhttp.send();
@@ -48,9 +48,9 @@
 	  
 
 	  function update() {
-		  ajax("http://localhost:5001/sensors/?sensor=engine_temp&number=1", 'temp', 'Engine Temperature', 'temp_sensor_label');
-		  ajax("http://localhost:5001/sensors?sensor=bat_volts&number=1", 'volt', 'Battery Voltage', 'volt_sensor_label');
-		  ajax("http://localhost:5001/sensors?sensor=brake_pressure_front&number=1", 'brake_pressure', 'Brake Preasure', 'pressure_sensor_label');
+		  ajax("http://localhost:5001/sensors/?sensor=engine_temp&number=1", 'temp', 'temp_sensor_label');
+		  ajax("http://localhost:5001/sensors?sensor=bat_volts&number=1", 'volt', 'volt_sensor_label');
+		  ajax("http://localhost:5001/sensors?sensor=brake_pressure_front&number=1", 'brake_pressure', 'pressure_sensor_label');
 	  }
       setInterval(update, 100);
 </script>

@@ -19,7 +19,7 @@ def home(request):
         for sensor in data:
             s_name = requests.get("http://localhost:5001/sensors/?sensor=" + sensor + "&number=1")
             data_sensor = s_name.json()
-            list_sensors.append(data_sensor[0]['name'])
+            list_sensors.append(data_sensor[0])
     sensor_list()
     sensor_names = requests.get("http://localhost:5001/sensors/?sensor=bat_volts&number=1")
     names_list = sensor_names.json()

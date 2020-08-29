@@ -22,6 +22,21 @@
           </div>
           <ul class="nav navbar-nav">
             <li class="active"><a href="{% url 'home-page' %}">Home</a></li>
+            {% if user.is_authenticated %}
+              <li class="active">
+                
+                  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"># of Columns
+                  <span class="caret"></span></button>
+                  <ul class="dropdown-menu">
+                    <li align="center" onclick = "var n = 1;">1</li>
+                    <li align="center">2</li>
+                    <li align="center">3</li>
+                    <li align="center">4</li>
+                    <li align="center">5</li>
+                  </ul>
+               
+              </li>
+            {% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
