@@ -2,12 +2,15 @@
 {% block content %}
 <div class="container">
 	<table width="100%">
+		<!--Arranges each column to be side-by-side-->
 		<tr>
+			<!--Creates as many columns as the value of 'num_cols' in 'views.py'-->
 			{% for i in cols_list %}
 			<td>
 			<div>
 				<h1 align="center" id="{{forloop.counter0}}_value"></h1>
 				<p align="center" id="{{forloop.counter0}}_label"></p>
+				<!--Creates a button with each sensor's human-readable name-->
 				<div class="dropdown" align ="center">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
 					<span class="caret"></span></button>
@@ -25,11 +28,14 @@
 </div>
 
 <script>
+	//Creates an array that contains as many elements as the int 'cols' passed in from 'views.py'
 	col_sensors = new Array({{cols}})
-	var i;
-	for (i=0; i < col_sensors.length; i++){
+	//Populates array with computer-readable name for each sensor in list 'sensors' from 'views.py'
+	for (var i=0; i < col_sensors.length; i++){
 		col_sensors[i] = "{{sensors.0.sensor}}"
 	}
+	//Populates 2 given HTML elements with data value from sensor and unit
+	//Adds label under data with element human-readable name
     function ajax(url, elem, label) {
       		var xhttp = new XMLHttpRequest();
       		xhttp.open("GET", url, true);
@@ -42,11 +48,19 @@
       		}
 		xhttp.send();
       }
+	
 	  function update() {
+		  //Goes through each sensor computer-readable name in 'cols_list' as i
 		  {% for i in cols_list %}
-		  ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.counter0}}] + "&number=1", '{{forloop.counter0}}_value', '{{forloop.counter0}}_label');
+		  //Does a Get request for each sensor name in 'col_sensors'
+		  ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.counter0}}] + "&number=1", 
+		  //Fills each column with the sensor's data value
+		  '{{forloop.counter0}}_value',
+		  //Fills each column label with the sensor's human-readable name
+		  '{{forloop.counter0}}_label');
 		  {% endfor %}
 	  }
+	  //Makes the page update the sensor values every number of milliseconds
       setInterval(update, 100);
 </script>
 {% endblock %}
