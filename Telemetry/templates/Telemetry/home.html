@@ -3,35 +3,33 @@
 <div class="container">
 	<table width="100%">
 		<tr>
-			{% for i in sensors %}
+			{% for i in cols_list %}
 			<td>
 			<div>
-				
-				<h1 align="center">{{i.value}} {{i.unit}}</h1>
-				<p align="center">{{i.name}}</p>
-
+				<h1 align="center" id="{{forloop.counter0}}_value"></h1>
+				<p align="center" id="{{forloop.counter0}}_label"></p>
 				<div class="dropdown" align ="center">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
 					<span class="caret"></span></button>
 					<ul class="dropdown-menu">
 						{% for item in sensors %}
-						<li>{{item.name}}</li>
+					<button onclick="col_sensors[{{forloop.parentloop.counter0}}] = '{{item.sensor}}'">{{item.name}}</button>
 						{% endfor %}
 					</ul>
 				</div>
-
 			</div>
-		</td>
-		{% endfor %}
+			</td>
+			{% endfor %}
 		</tr>
 	</table>	
 </div>
 
 <script>
-	var mylist = "{{r}}".split(',');
-	for(i = 0; i < mylist.length; i++){
-    console.log(mylist[i])
-};
+	col_sensors = new Array({{cols}})
+	var i;
+	for (i=0; i < col_sensors.length; i++){
+		col_sensors[i] = "{{sensors.0.sensor}}"
+	}
     function ajax(url, elem, label) {
       		var xhttp = new XMLHttpRequest();
       		xhttp.open("GET", url, true);
@@ -44,13 +42,10 @@
       		}
 		xhttp.send();
       }
-	  var sensor1 = "ecu_temp";
-	  
-
 	  function update() {
-		  ajax("http://localhost:5001/sensors/?sensor=engine_temp&number=1", 'temp', 'temp_sensor_label');
-		  ajax("http://localhost:5001/sensors?sensor=bat_volts&number=1", 'volt', 'volt_sensor_label');
-		  ajax("http://localhost:5001/sensors?sensor=brake_pressure_front&number=1", 'brake_pressure', 'pressure_sensor_label');
+		  {% for i in cols_list %}
+		  ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.counter0}}] + "&number=1", '{{forloop.counter0}}_value', '{{forloop.counter0}}_label');
+		  {% endfor %}
 	  }
       setInterval(update, 100);
 </script>
