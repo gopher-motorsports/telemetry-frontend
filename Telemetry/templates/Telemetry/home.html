@@ -31,9 +31,7 @@
 						
 						{% for time in refresh_intervals %}
 							<button id="time_{{forloop.counter0}}" onclick="
-							//col_sensors[0][0][1] = {{time}};
-							col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][3] = {{time}};
-							refresh_rate();
+							col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1] = {{time}};
 							">{{time}}</button>
 						{% endfor %}
 					</ul>
@@ -56,19 +54,22 @@
 	//Populates array with computer-readable name for each sensor in list 'list_sensors' from 'views.py'
 	for (var i=0; i < {{rows}}; i++) {
 		for (var j=0; j < {{cols}}; j++) {
-			col_sensors[i][j] = ["{{list_sensors.0.sensor}}", 2000]
+			col_sensors[i][j] = ["{{list_sensors.0.sensor}}", 5000]
 		}
 	}
 	//Populates 2 given HTML elements with data value from sensor and unit
 	//Adds label under data with element human-readable name
-    function ajax(url, elem, label) {
+    function ajax(url, x, y) {
       		var xhttp = new XMLHttpRequest();
       		xhttp.open("GET", url, true);
       		xhttp.onreadystatechange = function() {
         		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
       				var array = JSON.parse(this.responseText);
-      				document.getElementById(elem).innerHTML = array[0].value + " " + array[0].unit;
-      				document.getElementById(label).innerHTML = array[0].name;
+      				document.getElementById(x + ',' + y + '_value').innerHTML = array[0].value + " " + array[0].unit;
+      				document.getElementById(x + ',' + y + '_label').innerHTML = array[0].name;
+					setTimeout(ajax(url, x, y), col_sensors[x][y][1]);
+					console.log(col_sensors[x])
+
       			};
       		}
 		xhttp.send();
@@ -78,19 +79,19 @@
 	  function update() {
 		  //Goes through each sensor computer-readable name in 'num_cols' as i
 		  {% for i in num_rows %}
-		  {% for j in num_cols %}
-		  //Does a Get request for each sensor name in 'col_sensors'
-		  ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0] + "&number=1", 
-		  //Fills each column with the sensor's data value
-		  '{{forloop.parentloop.counter0}},{{forloop.counter0}}_value',
-		  //Fills each column label with the sensor's human-readable name
-		  '{{forloop.parentloop.counter0}},{{forloop.counter0}}_label');
-
-		  {% endfor %}
+			{% for j in num_cols %}
+				//Does a Get request for each sensor name in 'col_sensors'
+				ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0] + "&number=1", 
+				//Fills each column with the sensor's data value
+				'{{forloop.parentloop.counter0}}',
+				//Fills each column label with the sensor's human-readable name
+				'{{forloop.counter0}}')
+			{% endfor %}
 		  {% endfor %}
 	  }
+	 update()
 	 // Makes the page update the sensor values every number of milliseconds
-	 function refresh_rate() {
+	 /* function refresh_rate() {
 		{% for i in num_rows %}
 		{% for j in num_cols %}
 			interval = col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][1]
@@ -98,7 +99,7 @@
 		{% endfor %}
 		{% endfor %}
 	 }
-	 refresh_rate()
+	 refresh_rate() */
 	  
 </script>
 {% endblock %}
