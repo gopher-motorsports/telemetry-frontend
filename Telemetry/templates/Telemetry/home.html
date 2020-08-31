@@ -2,24 +2,39 @@
 {% block content %}
 <div class="container">
 	<table width="100%">
+		{% for i in num_rows %}
 		<!--Arranges each column to be side-by-side-->
 		<tr>
 			<!--Creates as many columns as the value of 'num_cols' in 'views.py'-->
-			{% for i in cols_list %}
+			{% for j in num_cols %}	
 			<td>
 			<div>
 				<!-- Contains the sensor's data and the unit-->
-				<h1 align="center" id="{{forloop.counter0}}_value"></h1>
+				<h1 align="center" id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_value"></h1>
 				<!-- Contains the sensor's human-readable name-->
-				<p align="center" id="{{forloop.counter0}}_label"></p>
+				<p align="center" id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_label"></p>
 				<!--Creates a button with each sensor's human-readable name-->
 				<div class="dropdown" align ="center">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
 					<span class="caret"></span></button>
 					<ul class="dropdown-menu">
 						<!--Adds a list item with the senor name-->
-						{% for item in sensors %}
-					<button onclick="col_sensors[{{forloop.parentloop.counter0}}] = '{{item.sensor}}'">{{item.name}}</button>
+						{% for item in list_sensors %}
+					<button onclick="col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0] = '{{item.sensor}}'">{{item.name}}</button>
+						{% endfor %}
+					</ul>
+				</div>
+				<div class="dropdown" align ="center">
+					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Refresh Interval (ms)
+					<span class="caret"></span></button>
+					<ul class="dropdown-menu">
+						
+						{% for time in refresh_intervals %}
+							<button id="time_{{forloop.counter0}}" onclick="
+							//col_sensors[0][0][1] = {{time}};
+							col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][3] = {{time}};
+							refresh_rate();
+							">{{time}}</button>
 						{% endfor %}
 					</ul>
 				</div>
@@ -27,15 +42,22 @@
 			</td>
 			{% endfor %}
 		</tr>
+		{% endfor %}
 	</table>	
 </div>
 
 <script>
 	//Creates an array that contains as many elements as the int 'cols' passed in from 'views.py'
-	col_sensors = new Array({{cols}})
-	//Populates array with computer-readable name for each sensor in list 'sensors' from 'views.py'
-	for (var i=0; i < col_sensors.length; i++){
-		col_sensors[i] = "{{sensors.0.sensor}}"
+	var col_sensors = new Array({{rows}});
+	for (var n = 0; n < {{rows}}; n++) {
+		col_sensors[n] = new Array({{cols}});
+	};
+	console.log(col_sensors)
+	//Populates array with computer-readable name for each sensor in list 'list_sensors' from 'views.py'
+	for (var i=0; i < {{rows}}; i++) {
+		for (var j=0; j < {{cols}}; j++) {
+			col_sensors[i][j] = ["{{list_sensors.0.sensor}}", 2000]
+		}
 	}
 	//Populates 2 given HTML elements with data value from sensor and unit
 	//Adds label under data with element human-readable name
@@ -51,19 +73,32 @@
       		}
 		xhttp.send();
       }
+
 	
 	  function update() {
-		  //Goes through each sensor computer-readable name in 'cols_list' as i
-		  {% for i in cols_list %}
+		  //Goes through each sensor computer-readable name in 'num_cols' as i
+		  {% for i in num_rows %}
+		  {% for j in num_cols %}
 		  //Does a Get request for each sensor name in 'col_sensors'
-		  ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.counter0}}] + "&number=1", 
+		  ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0] + "&number=1", 
 		  //Fills each column with the sensor's data value
-		  '{{forloop.counter0}}_value',
+		  '{{forloop.parentloop.counter0}},{{forloop.counter0}}_value',
 		  //Fills each column label with the sensor's human-readable name
-		  '{{forloop.counter0}}_label');
+		  '{{forloop.parentloop.counter0}},{{forloop.counter0}}_label');
+
+		  {% endfor %}
 		  {% endfor %}
 	  }
-	  //Makes the page update the sensor values every number of milliseconds
-      setInterval(update, 100);
+	 // Makes the page update the sensor values every number of milliseconds
+	 function refresh_rate() {
+		{% for i in num_rows %}
+		{% for j in num_cols %}
+			interval = col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][1]
+			setInterval(update, interval);
+		{% endfor %}
+		{% endfor %}
+	 }
+	 refresh_rate()
+	  
 </script>
 {% endblock %}

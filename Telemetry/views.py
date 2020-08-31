@@ -6,8 +6,11 @@ import json
 
 @login_required
 def home(request):
-    #The number of horizontal columns on the page
-    num_cols = 5
+
+    num_cols = 3
+    num_rows = 2
+    refresh_intervals = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000]
+    
     #Gets a list of the sensor names
     r = requests.get('http://localhost:5001/init')
     json_sensors = json.dumps(r.text)
@@ -32,9 +35,12 @@ def home(request):
     return render(request, 
                 'Telemetry/home.html', 
                 {
-                'sensors': list_sensors,
+                'list_sensors': list_sensors,
                 'cols': num_cols,
-                #Not really a list. This is needed to iterate in the 'home.html' template
-                'cols_list': range(num_cols)}
-                )
+                'rows': num_rows,
+                'refresh_intervals': refresh_intervals,
+                #This is needed to iterate in the 'home.html' template
+                'num_cols': range(num_cols),
+                'num_rows': range(num_rows)
+                })
 
