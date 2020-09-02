@@ -31,10 +31,14 @@ def home(request):
             list_sensors.append(data_sensor[0])
     #Actually runs the functions so the above can happen
     sensor_list()
+    bat_volt = requests.get("http://localhost:5001/sensors/?sensor=bat_volts&number=1")
+    bat_volt_data = bat_volt.json()
+
     #Passes these values into the 'home.html' template
     return render(request, 
                 'Telemetry/home.html', 
                 {
+                'bat_volt': bat_volt_data[0]['value'],
                 'list_sensors': list_sensors,
                 'cols': num_cols,
                 'rows': num_rows,

@@ -44,7 +44,52 @@
 	</table>	
 </div>
 
+<canvas id="myChart"></canvas>
 <script>
+
+function get_data(url){
+	var xhttp = new XMLHttpRequest();
+      		xhttp.open("GET", url, true);
+      		xhttp.onreadystatechange = function() {
+        		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+      				var array = JSON.parse(this.responseText);
+					
+					bat_volt = array[0].value;
+      			};
+      		}
+		xhttp.send();
+		return bat_volt;
+}
+function live_graph(sensor) {
+	var ctx = document.getElementById('myChart').getContext('2d');
+	var chart = new Chart(ctx, {
+	type: 'line',
+	data: {
+		datasets: [{
+		data: []
+		}]
+	},
+	options: {
+		scales: {
+		xAxes: [{
+			type: 'realtime',
+			realtime: {
+				onRefresh: function(chart) {
+				chart.data.datasets.forEach(function(dataset) {
+					dataset.data.push({
+					x: Date.now(),
+					y: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')
+					});
+				});
+				}
+				}
+		}]
+		}
+	}
+	})
+};
+	live_graph('bat_volts');
+
 	//Creates an array that contains as many elements as the int 'cols' passed in from 'views.py'
 	var col_sensors = new Array({{rows}});
 	for (var n = 0; n < {{rows}}; n++) {
@@ -89,7 +134,7 @@
 			{% endfor %}
 		  {% endfor %}
 	  }
-	 update()
+	 //update()
 	 // Makes the page update the sensor values every number of milliseconds
 	 /* function refresh_rate() {
 		{% for i in num_rows %}
