@@ -4,10 +4,11 @@
 <head>
   <link rel="icon" type="image/png" href="{% static 'Telemetry/images/wheel.png' %}"/>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    
 
     <!-- Latest compiled JavaScript -->
     
@@ -26,17 +27,6 @@
           {% if user.is_authenticated %}
           <ul class="nav navbar-nav">
             <li class="active"><a href="{% url 'home-page' %}">Home</a></li>
-            
-              <li class="active">
-                
-                  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"># of Columns
-                  <span class="caret"></span></button>
-                  <ul class="dropdown-menu">
-                    
-                  </ul>
-               
-              </li>
-            
           </ul>
           {% endif %}
           <ul class="nav navbar-nav navbar-right">

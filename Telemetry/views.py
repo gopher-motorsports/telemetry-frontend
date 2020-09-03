@@ -13,7 +13,6 @@ def home(request):
     
     #Gets a list of the sensor names
     r = requests.get('http://localhost:5001/init')
-    json_sensors = json.dumps(r.text)
     #Converts that list to a JSON object that we can work with
     data = r.json()
     list_sensors = []

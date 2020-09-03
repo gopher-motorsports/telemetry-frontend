@@ -9,21 +9,30 @@
 			{% for j in num_cols %}	
 			<td>
 			<div>
+				<canvas id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_graph"></canvas>
 				<!-- Contains the sensor's data and the unit-->
+				<!--
 				<h1 align="center" id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_value"></h1>
+				-->
 				<!-- Contains the sensor's human-readable name-->
 				<p align="center" id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_label"></p>
+				
+				
 				<!--Creates a button with each sensor's human-readable name-->
 				<div class="dropdown" align ="center">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
 					<span class="caret"></span></button>
 					<ul class="dropdown-menu">
-						<!--Adds a list item with the senor name-->
+						<!--Adds a list item with the sensor name-->
 						{% for item in list_sensors %}
-					<button onclick="col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0] = '{{item.sensor}}'">{{item.name}}</button>
+							<button onclick="col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0] = '{{item.sensor}}';
+							live_graph(col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0], 
+							'{{forloop.parentloop.parentloop.counter0}}' + ',' + '{{forloop.parentloop.counter0}}' + '_graph');">{{item.name}}</button>
 						{% endfor %}
 					</ul>
 				</div>
+				
+				
 				<div class="dropdown" align ="center">
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Refresh Interval (ms)
 					<span class="caret"></span></button>
@@ -31,11 +40,13 @@
 						
 						{% for time in refresh_intervals %}
 							<button id="time_{{forloop.counter0}}" onclick="
-							col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1] = {{time}};
-							">{{time}}</button>
+								col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1] = {{time}};
+								">{{time}}
+							</button>
 						{% endfor %}
 					</ul>
 				</div>
+				
 			</div>
 			</td>
 			{% endfor %}
@@ -44,36 +55,42 @@
 	</table>	
 </div>
 
-<canvas id="myChart"></canvas>
-<script>
 
+<script>
+var data_value = 0;
 function get_data(url){
 	var xhttp = new XMLHttpRequest();
       		xhttp.open("GET", url, true);
       		xhttp.onreadystatechange = function() {
         		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
       				var array = JSON.parse(this.responseText);
-					
-					bat_volt = array[0].value;
+					data_value = array[0].value;	
       			};
       		}
 		xhttp.send();
-		return bat_volt;
+		return data_value;
 }
-function live_graph(sensor) {
-	var ctx = document.getElementById('myChart').getContext('2d');
+function live_graph(sensor, id) {
+	var ctx = document.getElementById(id).getContext('2d');
 	var chart = new Chart(ctx, {
 	type: 'line',
 	data: {
 		datasets: [{
+		label: sensor,
+		borderColor: 'rgb(54, 162, 235)',
+      	backgroundColor: 'rgba(54, 162, 235, 0.5)',
+		//Makes the graph lines straight instead of curved
+		lineTension: 0,
 		data: []
 		}]
 	},
 	options: {
+		bezierCurve: false,
 		scales: {
 		xAxes: [{
 			type: 'realtime',
 			realtime: {
+				delay: 2000,
 				onRefresh: function(chart) {
 				chart.data.datasets.forEach(function(dataset) {
 					dataset.data.push({
@@ -88,63 +105,29 @@ function live_graph(sensor) {
 	}
 	})
 };
-	live_graph('bat_volts');
 
 	//Creates an array that contains as many elements as the int 'cols' passed in from 'views.py'
 	var col_sensors = new Array({{rows}});
 	for (var n = 0; n < {{rows}}; n++) {
 		col_sensors[n] = new Array({{cols}});
 	};
-	console.log(col_sensors)
+	
 	//Populates array with computer-readable name for each sensor in list 'list_sensors' from 'views.py'
 	for (var i=0; i < {{rows}}; i++) {
 		for (var j=0; j < {{cols}}; j++) {
 			col_sensors[i][j] = ["{{list_sensors.0.sensor}}", 5000]
 		}
 	}
-	//Populates 2 given HTML elements with data value from sensor and unit
-	//Adds label under data with element human-readable name
-    function ajax(url, x, y) {
-      		var xhttp = new XMLHttpRequest();
-      		xhttp.open("GET", url, true);
-      		xhttp.onreadystatechange = function() {
-        		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
-      				var array = JSON.parse(this.responseText);
-      				document.getElementById(x + ',' + y + '_value').innerHTML = array[0].value + " " + array[0].unit;
-      				document.getElementById(x + ',' + y + '_label').innerHTML = array[0].name;
-					setTimeout(ajax(url, x, y), col_sensors[x][y][1]);
-					console.log(col_sensors[x])
-
-      			};
-      		}
-		xhttp.send();
-      }
-
 	
-	  function update() {
-		  //Goes through each sensor computer-readable name in 'num_cols' as i
-		  {% for i in num_rows %}
-			{% for j in num_cols %}
-				//Does a Get request for each sensor name in 'col_sensors'
-				ajax("http://localhost:5001/sensors/?sensor=" + col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0] + "&number=1", 
-				//Fills each column with the sensor's data value
-				'{{forloop.parentloop.counter0}}',
-				//Fills each column label with the sensor's human-readable name
-				'{{forloop.counter0}}')
-			{% endfor %}
-		  {% endfor %}
-	  }
-	 //update()
-	 // Makes the page update the sensor values every number of milliseconds
-	 /* function refresh_rate() {
 		{% for i in num_rows %}
 		{% for j in num_cols %}
-			interval = col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][1]
-			setInterval(update, interval);
+			live_graph(col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0], 
+			"{{forloop.parentloop.counter0}}" + ',' + "{{forloop.counter0}}" + '_graph');
 		{% endfor %}
 		{% endfor %}
-	 }
-	 refresh_rate() */
+	
+	
+	
 	  
 </script>
 {% endblock %}
