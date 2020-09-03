@@ -64,11 +64,12 @@ function get_data(url){
       		xhttp.onreadystatechange = function() {
         		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
       				var array = JSON.parse(this.responseText);
-					data_value = array[0].value;	
+					data_value = array[0].value;
+					sensor_label = array[0].name + " (" + array[0].unit + ')';
       			};
       		}
 		xhttp.send();
-		return data_value;
+		return [data_value, sensor_label];
 }
 function live_graph(sensor, id) {
 	var ctx = document.getElementById(id).getContext('2d');
@@ -76,7 +77,7 @@ function live_graph(sensor, id) {
 	type: 'line',
 	data: {
 		datasets: [{
-		label: sensor,
+		label: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')[1],
 		borderColor: 'rgb(54, 162, 235)',
       	backgroundColor: 'rgba(54, 162, 235, 0.5)',
 		//Makes the graph lines straight instead of curved
@@ -95,7 +96,7 @@ function live_graph(sensor, id) {
 				chart.data.datasets.forEach(function(dataset) {
 					dataset.data.push({
 					x: Date.now(),
-					y: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')
+					y: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')[0]
 					});
 				});
 				}
@@ -124,10 +125,6 @@ function live_graph(sensor, id) {
 			live_graph(col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0], 
 			"{{forloop.parentloop.counter0}}" + ',' + "{{forloop.counter0}}" + '_graph');
 		{% endfor %}
-		{% endfor %}
-	
-	
-	
-	  
+		{% endfor %}  
 </script>
 {% endblock %}
