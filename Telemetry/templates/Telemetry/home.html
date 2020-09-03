@@ -26,8 +26,10 @@
 						<!--Adds a list item with the sensor name-->
 						{% for item in list_sensors %}
 							<button onclick="col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0] = '{{item.sensor}}';
+							
+							delete_graph({{forloop.parentloop.parentloop.counter0}}, {{forloop.parentloop.counter0}});
 							live_graph(col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0], 
-							'{{forloop.parentloop.parentloop.counter0}}' + ',' + '{{forloop.parentloop.counter0}}' + '_graph');">{{item.name}}</button>
+							{{forloop.parentloop.parentloop.counter0}} , {{forloop.parentloop.counter0}});">{{item.name}}</button>
 						{% endfor %}
 					</ul>
 				</div>
@@ -58,22 +60,29 @@
 
 <script>
 var data_value = 0;
+var sensor_label = "";
 function get_data(url){
 	var xhttp = new XMLHttpRequest();
-      		xhttp.open("GET", url, true);
-      		xhttp.onreadystatechange = function() {
-        		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
-      				var array = JSON.parse(this.responseText);
-					data_value = array[0].value;
-					sensor_label = array[0].name + " (" + array[0].unit + ')';
-      			};
-      		}
-		xhttp.send();
-		return [data_value, sensor_label];
+	xhttp.open("GET", url, false);
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+			var array = JSON.parse(this.responseText);
+			data_value = array[0].value;
+			//console.log(array[0].value);
+			sensor_label = array[0].name + " (" + array[0].unit + ')';
+			//console.log(sensor_label);
+		};	
+	}
+	xhttp.send();
+	return [data_value, sensor_label];
 }
-function live_graph(sensor, id) {
-	var ctx = document.getElementById(id).getContext('2d');
-	var chart = new Chart(ctx, {
+var graphs = new Array({{rows}});
+	for (var n = 0; n < {{rows}}; n++) {
+		graphs[n] = new Array({{cols}});
+	};
+function live_graph(sensor, x, y) {
+	var ctx = document.getElementById(x + ',' + y + '_graph').getContext('2d');
+	graphs[x][y] = new Chart(ctx, {
 	type: 'line',
 	data: {
 		datasets: [{
@@ -91,7 +100,7 @@ function live_graph(sensor, id) {
 		xAxes: [{
 			type: 'realtime',
 			realtime: {
-				delay: 2000,
+				delay: col_sensors[x][y][1],
 				onRefresh: function(chart) {
 				chart.data.datasets.forEach(function(dataset) {
 					dataset.data.push({
@@ -106,7 +115,10 @@ function live_graph(sensor, id) {
 	}
 	})
 };
-
+console.log(Date.now());
+function delete_graph(x, y) {
+	graphs[x][y].destroy();
+}
 	//Creates an array that contains as many elements as the int 'cols' passed in from 'views.py'
 	var col_sensors = new Array({{rows}});
 	for (var n = 0; n < {{rows}}; n++) {
@@ -123,7 +135,7 @@ function live_graph(sensor, id) {
 		{% for i in num_rows %}
 		{% for j in num_cols %}
 			live_graph(col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0], 
-			"{{forloop.parentloop.counter0}}" + ',' + "{{forloop.counter0}}" + '_graph');
+			"{{forloop.parentloop.counter0}}" , "{{forloop.counter0}}");
 		{% endfor %}
 		{% endfor %}  
 </script>

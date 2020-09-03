@@ -7,7 +7,7 @@ import json
 @login_required
 def home(request):
 
-    num_cols = 3
+    num_cols = 1
     num_rows = 2
     refresh_intervals = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000]
     
