@@ -9,7 +9,9 @@
 			{% for j in num_cols %}	
 			<td>
 			<div>
-				<canvas id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_graph"></canvas>
+				<div style="height: 250px; width: 500px;" class="container">
+					<canvas height="250" width="500" id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_graph"></canvas>
+				</div>
 				<!-- Contains the sensor's data and the unit-->
 				<!--
 				<h1 align="center" id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_value"></h1>
@@ -99,6 +101,10 @@ function live_graph(sensor, x, y) {
 		scales: {
 		xAxes: [{
 			type: 'realtime',
+			scaleLabel: {
+				display: true,
+				labelString: 'Time (s)'
+			},
 			realtime: {
 				delay: col_sensors[x][y][1],
 				onRefresh: function(chart) {
@@ -110,6 +116,12 @@ function live_graph(sensor, x, y) {
 				});
 				}
 				}
+		}],
+		yAxes: [{
+			scaleLabel: {
+				display: true,
+				labelString: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')[1]
+			}
 		}]
 		}
 	}

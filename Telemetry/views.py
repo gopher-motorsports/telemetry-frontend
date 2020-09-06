@@ -7,8 +7,8 @@ import json
 @login_required
 def home(request):
 
-    num_cols = 1
-    num_rows = 2
+    num_cols = 2
+    num_rows = 1
     refresh_intervals = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000]
     
     #Gets a list of the sensor names
