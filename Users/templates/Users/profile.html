@@ -4,4 +4,59 @@
     <h4>Name: {{user.first_name}} {{user.last_name}} </h4>
     <h4>Username: {{user.username}}</h4>
     
+   
+        <div class="navbar"><span>Real-Time Chart with Plotly.js</span></div>
+        <div class="wrapper">
+            <div id="chart"></div>
+    <script>
+        var data_value = 0;
+var sensor_label = "";
+function get_data(url){
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("GET", url, false);
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+            var array = JSON.parse(this.responseText);
+            console.log(array);
+			data_value = array[0].value;
+			
+			sensor_label = array[0].name + " (" + array[0].unit + ')';
+			
+		};	
+	}
+	xhttp.send();
+	return [data_value, sensor_label];
+}
+        function getData() {
+            return get_data('http://localhost:5001/sensors/?sensor=' + 'bat_volt' + '&number=1')[1];
+        }
+	var layout = {
+		title: 'Title of the Graph',
+        yaxis: {
+			title: 'y-axis title'
+		},
+		xaxis: {
+			title: 'x-axis title'
+		}
+	};
+	Plotly.plot('chart',[{
+		
+		y:[getData()],
+		type:'line'
+	}], layout);
+	
+	var cnt = 0;
+	setInterval(function(){
+		Plotly.extendTraces('chart',{ y:[[getData()]]}, [0]);
+		cnt++;
+		if(cnt > 0) {
+			Plotly.relayout('chart',{
+				xaxis: {
+					range: [cnt-5,cnt]
+				}
+			});
+		}
+	}, 1000);
+            </script>
+
 {% endblock %}

@@ -18,39 +18,104 @@
 				-->
 				<!-- Contains the sensor's human-readable name-->
 				<p align="center" id="{{forloop.parentloop.counter0}},{{forloop.counter0}}_label"></p>
-				
-				
 				<!--Creates a button with each sensor's human-readable name-->
-				<div class="dropdown" align ="center">
-					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Sensor
-					<span class="caret"></span></button>
-					<ul class="dropdown-menu">
-						<!--Adds a list item with the sensor name-->
-						{% for item in list_sensors %}
-							<button onclick="col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0] = '{{item.sensor}}';
-							
-							delete_graph({{forloop.parentloop.parentloop.counter0}}, {{forloop.parentloop.counter0}});
-							live_graph(col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0], 
-							{{forloop.parentloop.parentloop.counter0}} , {{forloop.parentloop.counter0}});">{{item.name}}</button>
-						{% endfor %}
-					</ul>
-				</div>
-				
-				
-				<div class="dropdown" align ="center">
-					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Refresh Interval (ms)
-					<span class="caret"></span></button>
-					<ul class="dropdown-menu">
-						
-						{% for time in refresh_intervals %}
-							<button id="time_{{forloop.counter0}}" onclick="
-								col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1] = {{time}};
-								">{{time}}
-							</button>
-						{% endfor %}
-					</ul>
-				</div>
-				
+				<table align="center">
+					<tr>
+						<td>
+							<div class="dropdown" align ="center">
+								<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Display Type
+								<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<li>
+										<button>Text</button>
+										
+											<button onclick="
+												{% for item in list_sensors %}
+													col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0] = '{{item.sensor}}';
+												{% endfor %}
+												delete_graph({{forloop.parentloop.counter0}}, {{forloop.counter0}});
+												live_graph('scatter', 
+													col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0],
+													col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][1], 
+													{{forloop.parentloop.counter0}}, 
+													{{forloop.counter0}});">Scatter
+											</button>
+										
+										<button>Line</button>
+									</li>
+								</ul>
+							</div>
+						</td>
+						<td>
+							<div class="dropdown" align ="center">
+								<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Refresh Interval (ms)
+								<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									{% for time in refresh_intervals %}
+										<button id="time_{{forloop.counter0}}" onclick="
+										col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][2] = {{time}};
+											
+									
+
+										delete_graph({{forloop.parentloop.parentloop.counter0}}, {{forloop.parentloop.counter0}});
+										
+										live_graph('scatter', 
+											col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0],
+											col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1], 
+											{{forloop.parentloop.parentloop.counter0}}, 
+											{{forloop.parentloop.counter0}});">{{time}}
+										</button>
+									{% endfor %}
+									
+								</ul>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="dropdown" align ="center">
+								<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose Y Sensor
+								<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<!--Adds a list item with the sensor name-->
+									{% for item in list_sensors %}
+										<button onclick="
+											col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1] = '{{item.sensor}}';
+											delete_graph({{forloop.parentloop.parentloop.counter0}}, {{forloop.parentloop.counter0}});
+											
+											live_graph('scatter', 
+												col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0],
+												col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1], 
+												{{forloop.parentloop.parentloop.counter0}}, 
+												{{forloop.parentloop.counter0}});">{{item.name}}
+										</button>
+									{% endfor %}
+								</ul>
+							</div>
+						</td>
+						<td>
+							<div class="dropdown" align ="center">
+								<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Choose X Sensor
+								<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<!--Adds a list item with the sensor name-->
+									{% for item in list_sensors %}
+										<button onclick="
+											col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0] = '{{item.sensor}}';
+											delete_graph({{forloop.parentloop.parentloop.counter0}}, {{forloop.parentloop.counter0}});
+											live_graph('scatter', 
+												col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][0],
+												col_sensors[{{forloop.parentloop.parentloop.counter0}}][{{forloop.parentloop.counter0}}][1], 
+												{{forloop.parentloop.parentloop.counter0}}, 
+												{{forloop.parentloop.counter0}});
+										">{{item.name}}
+										</button>
+									{% endfor %}
+								</ul>
+							</div>
+						</td>
+					</tr>
+				</table>
 			</div>
 			</td>
 			{% endfor %}
@@ -70,9 +135,9 @@ function get_data(url){
 		if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
 			var array = JSON.parse(this.responseText);
 			data_value = array[0].value;
-			//console.log(array[0].value);
+			
 			sensor_label = array[0].name + " (" + array[0].unit + ')';
-			//console.log(sensor_label);
+			
 		};	
 	}
 	xhttp.send();
@@ -82,52 +147,106 @@ var graphs = new Array({{rows}});
 	for (var n = 0; n < {{rows}}; n++) {
 		graphs[n] = new Array({{cols}});
 	};
-function live_graph(sensor, x, y) {
-	var ctx = document.getElementById(x + ',' + y + '_graph').getContext('2d');
-	graphs[x][y] = new Chart(ctx, {
-	type: 'line',
-	data: {
-		datasets: [{
-		label: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')[1],
-		borderColor: 'rgb(54, 162, 235)',
-      	backgroundColor: 'rgba(54, 162, 235, 0.5)',
-		//Makes the graph lines straight instead of curved
-		lineTension: 0,
-		data: []
-		}]
-	},
-	options: {
-		bezierCurve: false,
-		scales: {
-		xAxes: [{
-			type: 'realtime',
-			scaleLabel: {
-				display: true,
-				labelString: 'Time (s)'
-			},
-			realtime: {
-				delay: col_sensors[x][y][1],
-				onRefresh: function(chart) {
-				chart.data.datasets.forEach(function(dataset) {
-					dataset.data.push({
-					x: Date.now(),
-					y: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')[0]
+function live_graph(type, sensor_x, sensor_y, x, y) {
+	if (type == 'line') {
+		var ctx = document.getElementById(x + ',' + y + '_graph').getContext('2d');
+		graphs[x][y] = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: [],
+			datasets: [{
+			label: get_data('http://localhost:5001/sensors/?sensor=' + sensor_y + '&number=1')[1],
+			borderColor: 'rgb(54, 162, 235)',
+			backgroundColor: 'rgba(54, 162, 235, 0.5)',
+			//Makes the graph lines straight instead of curved
+			lineTension: 0,
+			data: []
+			}]
+		},
+		options: {
+			bezierCurve: false,
+			scales: {
+			xAxes: [{
+				type: 'realtime',
+				scaleLabel: {
+					display: true,
+					labelString: 'Time (s)'
+				},
+				realtime: {
+					delay: col_sensors[x][y][1],
+					onRefresh: function(chart) {
+					chart.data.datasets.forEach(function(dataset) {
+						dataset.data.push({
+						x: Date.now(),
+						y: get_data('http://localhost:5001/sensors/?sensor=' + sensor_y + '&number=1')[0]
+						});
 					});
-				});
+					}
+					}
+			}],
+			yAxes: [{
+				scaleLabel: {
+					display: true,
+					labelString: get_data('http://localhost:5001/sensors/?sensor=' + sensor_y + '&number=1')[1]
 				}
-				}
-		}],
-		yAxes: [{
-			scaleLabel: {
-				display: true,
-				labelString: get_data('http://localhost:5001/sensors/?sensor=' + sensor + '&number=1')[1]
+			}]
 			}
-		}]
 		}
+		})
+	} else if (type == 'scatter') {
+		console.log(x + ',' + y + '_graph')
+		var ctx = document.getElementById(x + ',' + y + '_graph').getContext('2d');
+		graphs[x][y] = new Chart(ctx, {
+		type: 'scatter',
+		data: {
+			datasets: [{
+				label: 'Scatter Dataset',
+				borderColor: 'rgb(54, 162, 235)',
+				backgroundColor: 'rgba(54, 162, 235, 0.5)',
+				data: [] 
+			}]
+		},
+		options: {
+			scales: {
+				xAxes: [{
+					type: 'linear',
+					position: 'bottom',
+					scaleLabel: {
+						display: true,
+						labelString: get_data('http://localhost:5001/sensors/?sensor=' + sensor_x + '&number=1')[1]
+					}
+				}],
+				yAxes: [{
+					type: 'linear',
+					position: 'bottom',
+					scaleLabel: {
+						display: true,
+						labelString: get_data('http://localhost:5001/sensors/?sensor=' + sensor_y + '&number=1')[1]
+					}
+				}]
+			}
+		}
+		});
+		var cnt = 0;
+		function addData() {
+			cnt++;
+			graphs[x][y].data.datasets[0].data.push({
+				x: get_data('http://localhost:5001/sensors/?sensor=' + sensor_x + '&number=1')[0], 
+				y: get_data('http://localhost:5001/sensors/?sensor=' + sensor_y + '&number=1')[0]
+			});
+			if (cnt > 20) {
+				
+				graphs[x][y].data.datasets[0].data.shift();
+			}
+			
+			graphs[x][y].update();
+		};
+		setInterval(addData, col_sensors[x][y][2])
+	} else {
+		
 	}
-	})
+	console.log(graphs);
 };
-console.log(Date.now());
 function delete_graph(x, y) {
 	graphs[x][y].destroy();
 }
@@ -140,13 +259,14 @@ function delete_graph(x, y) {
 	//Populates array with computer-readable name for each sensor in list 'list_sensors' from 'views.py'
 	for (var i=0; i < {{rows}}; i++) {
 		for (var j=0; j < {{cols}}; j++) {
-			col_sensors[i][j] = ["{{list_sensors.0.sensor}}", 5000]
+			col_sensors[i][j] = ["{{list_sensors.0.sensor}}", "{{list_sensors.1.sensor}}", 5000]
 		}
 	}
 	
 		{% for i in num_rows %}
 		{% for j in num_cols %}
-			live_graph(col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0], 
+			live_graph('scatter', col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][0],
+			col_sensors[{{forloop.parentloop.counter0}}][{{forloop.counter0}}][1],
 			"{{forloop.parentloop.counter0}}" , "{{forloop.counter0}}");
 		{% endfor %}
 		{% endfor %}  
